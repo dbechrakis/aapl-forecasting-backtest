@@ -4,4 +4,4 @@ Review date: 2026-09-05 (UTC).
 
 Forecasting logic tested on controlled sequences; historical metrics remain unverified without the original source CSV.
 
-Changes were prepared with AI assistance and should be understood and reviewed by the repository owner. Historical records are not labelled as freshly reproduced results.
+Historical records are not labelled as freshly reproduced results.
