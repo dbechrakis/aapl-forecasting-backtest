@@ -45,7 +45,8 @@ def plot_rolling_coverage(intervals: pd.DataFrame, path: Path) -> None:
     group = intervals[(intervals.horizon == 1) & (intervals.level == 0.95)].dropna(subset=["actual"])
     group = group.set_index("origin")
     fig, ax = plt.subplots(figsize=(12, 4))
-    for method, label in [("static", "Static normal"), ("ewma", "EWMA normal"), ("conformal", "EWMA conformal")]:
+    for method, label in [("static", "Static normal"), ("ewma", "EWMA normal"), ("conformal", "EWMA conformal"),
+                          ("garch_conformal", "GARCH conformal")]:
         inside = (group["actual"] >= group[f"{method}_lo"]) & (group["actual"] <= group[f"{method}_hi"])
         ax.plot(inside.rolling(252).mean(), label=label, linewidth=1.2)
     ax.axhline(0.95, color="black", linestyle="--", linewidth=0.8, label="Nominal 95%")

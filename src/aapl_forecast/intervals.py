@@ -9,9 +9,11 @@ import pandas as pd
 from scipy import stats
 
 from aapl_forecast.features import ewma_volatility, log_returns, target
+from aapl_forecast.garch import garch_scale
 
 
 LEVELS = (0.80, 0.95)
+METHODS = ["static", "ewma", "conformal", "garch", "garch_conformal"]
 CONFORMAL_WINDOW = 1000
 
 
@@ -40,13 +42,17 @@ def interval_forecasts(
     horizons: tuple[int, ...],
     levels: tuple[float, ...] = LEVELS,
 ) -> pd.DataFrame:
-    """Static-normal, EWMA-normal and EWMA-conformal intervals for each origin."""
+    """Static-normal, EWMA (normal, conformal) and GARCH (normal, conformal) intervals."""
     vol = ewma_volatility(log_returns(prices)).to_numpy()
     first = int(prices.index.searchsorted(pd.Timestamp(start)))
     origins = np.arange(first, len(prices))
+    garch_scales, _ = garch_scale(prices, horizons, first)
     frames = []
     for horizon in horizons:
         y, scale, standardized = standardized_history(prices, horizon)
+        g_scale = garch_scales[horizon]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            g_standardized = y / g_scale
         for level in levels:
             z = stats.norm.ppf(0.5 + level / 2)
             rows = []
@@ -54,13 +60,16 @@ def interval_forecasts(
                 history = y[1: i - horizon + 1]  # targets observed by the close of i
                 static = z * history[~np.isnan(history)].std(ddof=1)
                 lo_c, hi_c = conformal_bounds(standardized, scale, i, horizon, level)
+                lo_g, hi_g = conformal_bounds(g_standardized, g_scale, i, horizon, level)
                 rows.append(
-                    (prices.index[i], -static, static, -z * scale[i], z * scale[i], lo_c, hi_c, y[i], vol[i])
+                    (prices.index[i], -static, static, -z * scale[i], z * scale[i], lo_c, hi_c,
+                     -z * g_scale[i], z * g_scale[i], lo_g, hi_g, y[i], vol[i])
                 )
             block = pd.DataFrame(
                 rows,
                 columns=["origin", "static_lo", "static_hi", "ewma_lo", "ewma_hi",
-                         "conformal_lo", "conformal_hi", "actual", "ewma_vol"],
+                         "conformal_lo", "conformal_hi", "garch_lo", "garch_hi",
+                         "garch_conformal_lo", "garch_conformal_hi", "actual", "ewma_vol"],
             )
             block["horizon"] = horizon
             block["level"] = level
@@ -96,7 +105,7 @@ def calibration_table(intervals: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for (horizon, level), group in scored.groupby(["horizon", "level"]):
         high_vol = group["ewma_vol"] >= group["ewma_vol"].expanding().median()
-        for method in ["static", "ewma", "conformal"]:
+        for method in METHODS:
             lo, hi = group[f"{method}_lo"], group[f"{method}_hi"]
             inside = (group["actual"] >= lo) & (group["actual"] <= hi)
             rows.append(

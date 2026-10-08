@@ -18,14 +18,18 @@ import pandas as pd
 
 from aapl_forecast.backtest import HORIZONS
 from aapl_forecast.data import download_prices, load_prices
-from aapl_forecast.intervals import LEVELS, conformal_bounds, standardized_history
+from aapl_forecast.features import target
+from aapl_forecast.garch import garch_scale
+from aapl_forecast.intervals import LEVELS, conformal_bounds
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG = ROOT / "outputs" / "live" / "forecast_log.csv"
 SUMMARY = ROOT / "outputs" / "live" / "track_record.csv"
+METHOD = "garch_conformal"  # best interval score and balanced regime coverage in the backtest
+BACKTEST_START = "2016-01-01"  # same refit schedule as the backtest, so live = backtest method
 COLUMNS = [
-    "issued_at_utc", "origin", "origin_close", "horizon", "level",
+    "issued_at_utc", "method", "origin", "origin_close", "horizon", "level",
     "lower_return", "upper_return", "lower_price", "upper_price",
     "target_date", "realized_return", "inside",
 ]
@@ -34,14 +38,19 @@ COLUMNS = [
 def issue(prices: pd.DataFrame, issued_at: str) -> pd.DataFrame:
     i = len(prices) - 1
     close = float(prices["Close"].iloc[i])
+    first = min(int(prices.index.searchsorted(pd.Timestamp(BACKTEST_START))), i)
+    scales, _ = garch_scale(prices, HORIZONS, first)
     rows = []
     for horizon in HORIZONS:
-        _, scale, standardized = standardized_history(prices, horizon)
+        scale = scales[horizon]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            standardized = target(prices, horizon).to_numpy() / scale
         for level in LEVELS:
             lo, hi = conformal_bounds(standardized, scale, i, horizon, level)
             rows.append(
                 {
                     "issued_at_utc": issued_at,
+                    "method": METHOD,
                     "origin": prices.index[i].date().isoformat(),
                     "origin_close": round(close, 4),
                     "horizon": horizon,

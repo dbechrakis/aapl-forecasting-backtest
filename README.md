@@ -9,7 +9,7 @@ A forecasting study that answers two separate questions honestly. The results ar
 
 The two questions are kept apart because they usually have different answers. Direction is close to unpredictable for a liquid large-cap stock. Volatility clusters, so uncertainty can be forecast.
 
-**Stack:** Python · pandas · NumPy · SciPy · scikit-learn · Matplotlib · GitHub Actions
+**Stack:** Python · pandas · NumPy · SciPy · scikit-learn · arch (GARCH) · Matplotlib · GitHub Actions
 
 ## Results (AAPL, 2,705 daily origins, Jan 2016 – Oct 2026)
 
@@ -38,13 +38,23 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 |---|---:|---:|---:|---:|---:|
 | Static normal | 83.7% | 93.6% | 90.7% | 97.0% | 0.002 |
 | EWMA normal | 82.8% | 93.6% | 94.5% | 92.5% | 0.001 |
-| **EWMA conformal** | **80.3%** | **94.7%** | **96.2%** | **93.0%** | **0.50** |
+| EWMA conformal | 80.3% | 94.7% | 96.2% | 93.0% | 0.50 |
+| GARCH normal | 83.7% | 94.6% | 94.5% | 94.7% | 0.35 |
+| **GARCH conformal** | **80.3%** | **94.6%** | **94.7%** | **94.6%** | **0.35** |
 
 ![Trailing 252-day coverage of 1-day 95% intervals](outputs/backtest/rolling_coverage.png)
 
-- **Only the conformal interval passes the coverage test.** Kupiec p = 0.74 at 80% and 0.50 at 95%. The static and EWMA-normal intervals are rejected at both levels.
+- **Only the conformal intervals pass the coverage test at both levels.** Kupiec p = 0.74 at 80% for both conformal methods. The static and EWMA-normal intervals are rejected at both levels; GARCH-normal passes at 95% but over-covers at 80%.
 - **A constant-width interval fails when it matters.** It covers 90.7% instead of 95% in volatile periods, and its trailing-year coverage fell to 83% in early 2021. It over-covers in calm periods.
-- **At 21 days the picture changes.** Conformal coverage is right on average (79.1% / 95.1%) but uneven by regime: 87.4% in high-volatility periods and 69.4% in low-volatility periods at the 80% level. The static interval has the better interval score at 21 days (both levels) and at 5 days for 95%. Volatility mean-reverts over a month, and scaling today's EWMA volatility by √h ignores that. A volatility model with mean reversion (e.g. GARCH) is the natural next step for longer horizons.
+- **Mean-reverting volatility fixes the long horizons.** Scaling today's EWMA volatility by √h assumes volatility stays put for the whole month. EWMA-conformal intervals were right on average at 21 days, but they covered 87.4% in volatile periods and 69.4% in calm ones (80% target), and the plain static interval beat them on interval score. A GARCH(1,1), refitted every 21 days on data up to the origin, forecasts each day's variance decaying back towards its long-run level:
+
+| 21-day, 80% target | Coverage | High volatility | Low volatility | Interval score (lower is better) |
+|---|---:|---:|---:|---:|
+| Static normal | 76.5% | 72.1% | 81.6% | 0.281 |
+| EWMA conformal | 79.1% | 87.4% | 69.4% | 0.297 |
+| **GARCH conformal** | **78.9%** | **79.5%** | **78.2%** | **0.278** |
+
+GARCH-conformal has the best interval score at 80% for every horizon. Plain GARCH has the best at 95%. The live forecast therefore uses GARCH-conformal.
 
 Full tables: [`accuracy.csv`](outputs/backtest/accuracy.csv) · [`interval_calibration.csv`](outputs/backtest/interval_calibration.csv) · [all forecasts](outputs/backtest/predictions.csv.gz) · [run manifest](outputs/backtest/run_manifest.json).
 
@@ -85,7 +95,11 @@ flowchart LR
 - **Significance:** Diebold–Mariano with the Harvey–Leybourne–Newbold small-sample correction. A long-run variance up to lag *h − 1* accounts for overlapping multi-day errors.
 - **Direction:** hit rate, compared with the trivial "always up" rate over the same period. A directional claim must beat that rate, not 50%.
 - **Intervals at 80% and 95%:**
-  - Three methods are compared, all centred on the random walk: static normal, EWMA normal (RiskMetrics λ = 0.94), and EWMA-scaled split-conformal (empirical quantiles of the last 1,000 matured standardized outcomes).
+  - Five methods are compared, all centred on the random walk:
+    - static normal;
+    - EWMA normal (RiskMetrics λ = 0.94);
+    - GARCH(1,1) normal, refitted every 21 days with the h-day variance reverting to its long-run level;
+    - two split-conformal versions, which scale empirical quantiles of the last 1,000 matured standardized outcomes by EWMA or by GARCH volatility.
   - Each is scored on coverage overall and in the high- and low-volatility halves, on mean width and on the Winkler interval score.
   - Kupiec's proportion-of-failures test is reported at h = 1, the only horizon where outcomes are independent.
 
@@ -94,7 +108,7 @@ flowchart LR
 [`live-forecast.yml`](.github/workflows/live-forecast.yml) runs after every US close:
 
 1. Downloads a fresh snapshot.
-2. Issues 1-, 5- and 21-day conformal intervals at 80% and 95%.
+2. Issues 1-, 5- and 21-day GARCH-conformal intervals at 80% and 95%.
 3. Scores every earlier forecast whose horizon has passed.
 4. Commits the result to [`outputs/live/forecast_log.csv`](outputs/live/) and [`track_record.csv`](outputs/live/).
 
@@ -109,7 +123,7 @@ The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -r requirements.txt
-make check        # lint + evidence + 22 tests (~5 s)
+make check        # lint + evidence + 24 tests (~10 s)
 make data         # download and fingerprint the snapshot (Yahoo, with Stooq as fallback)
 make backtest     # ~2 min; writes outputs/backtest/
 make forecast     # issue and score live forecasts
@@ -123,7 +137,8 @@ src/aapl_forecast/
 ├── features.py      # Features known at the close; h-day targets
 ├── backtest.py      # Rolling-origin backtest with matured-label refits
 ├── evaluation.py    # Accuracy vs random walk, Diebold–Mariano
-└── intervals.py     # Static / EWMA / conformal intervals, coverage, Kupiec
+├── garch.py         # GARCH(1,1) h-day volatility with mean reversion
+└── intervals.py     # Static / EWMA / GARCH, normal and conformal intervals, coverage, Kupiec
 scripts/             # download_data, run_backtest, forecast_latest
 tests/               # look-ahead, statistics, validation and live-scoring tests
 coursework/          # Original January-window coursework experiment (archived)

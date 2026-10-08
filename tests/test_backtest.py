@@ -53,7 +53,8 @@ class LookAheadTests(unittest.TestCase):
         original = interval_forecasts(self.prices, START, (1, 5))
         changed = interval_forecasts(self.changed, START, (1, 5))
         cutoff = self.prices.index[self.cut]
-        bounds = ["static_lo", "static_hi", "ewma_lo", "ewma_hi", "conformal_lo", "conformal_hi"]
+        bounds = ["static_lo", "static_hi", "ewma_lo", "ewma_hi", "conformal_lo", "conformal_hi",
+                  "garch_lo", "garch_hi", "garch_conformal_lo", "garch_conformal_hi"]
         pd.testing.assert_frame_equal(
             original.loc[original.origin <= cutoff, bounds].reset_index(drop=True),
             changed.loc[changed.origin <= cutoff, bounds].reset_index(drop=True),

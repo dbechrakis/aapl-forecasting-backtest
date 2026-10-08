@@ -122,3 +122,24 @@ class ValidationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GarchTests(unittest.TestCase):
+    def test_horizon_variance_reverts_to_long_run(self):
+        from aapl_forecast.garch import horizon_variance
+
+        params = {"omega": 2e-6, "alpha": 0.08, "beta": 0.9, "mu": 0.0}
+        long_run = 2e-6 / 0.02
+        self.assertAlmostEqual(horizon_variance(4e-4, params, 1), 4e-4)
+        # From a high starting variance, a 1,000-day average is mostly back at the long run.
+        average = horizon_variance(4 * long_run, params, 1000) / 1000
+        self.assertLess(average, 1.3 * long_run)
+        self.assertGreater(average, long_run)
+
+    def test_fit_recovers_simulated_persistence(self):
+        from aapl_forecast.features import log_returns
+        from aapl_forecast.garch import fit_garch
+
+        returns = log_returns(garch_prices(n=4000, seed=5)).to_numpy()[1:]
+        params = fit_garch(returns)
+        self.assertAlmostEqual(params["alpha"] + params["beta"], 0.98, delta=0.03)

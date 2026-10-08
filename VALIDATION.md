@@ -27,3 +27,14 @@ Historical records are not labelled as freshly reproduced results.
 
 - The first manual `Live forecast` run (16:51 UTC, during US trading hours) used an intraday price as the 2026-10-08 close. The first backtest snapshot (downloaded 16:37 UTC) also ended with that partial bar, which entered one scored 1-day outcome.
 - Downloads now drop any session that has not settled. A session counts as settled after 17:00 New York time; a test covers this. The intraday live forecast rows were removed rather than kept as a track record, and the backtest was refreshed on settled bars only. The refreshed snapshot ends 2026-10-07 (4,216 rows, SHA-256 `c9c5e42cd31b448857a8933586d1a2631cc9b57755d4cfdc09070ddd60cd6fb0`). It gives 2,705 1-day origins, and every conclusion in the README is unchanged.
+
+## GARCH volatility intervals — 2026-10-08
+
+- Added GARCH(1,1) h-day volatility, refitted every 21 trading days on returns up to the origin, with the variance forecast reverting geometrically to its long-run level. GARCH-normal and GARCH-conformal intervals were added to the comparison.
+- The look-ahead test covers the GARCH bounds. A deliberate leak (fitting on all returns) made it fail.
+- Rerun on the committed snapshot (SHA-256 `c9c5e42c…`):
+  - Point forecasts are byte-identical to the previous run.
+  - GARCH-conformal has the best interval score at 80% for all three horizons, and GARCH-normal the best at 95%.
+  - At 21 days and 80%, GARCH-conformal covers 79.5% in high-volatility and 78.2% in low-volatility periods, against 87.4% and 69.4% for EWMA-conformal.
+- The live forecast now issues GARCH-conformal intervals and records the method in each log row.
+- 24 tests pass and Ruff passes.
