@@ -11,9 +11,9 @@ The two questions are kept apart because they usually have different answers. Di
 
 **Stack:** Python · pandas · NumPy · SciPy · scikit-learn · Matplotlib · GitHub Actions
 
-## Results (AAPL, 2,706 daily origins, Jan 2016 – Oct 2026)
+## Results (AAPL, 2,705 daily origins, Jan 2016 – Oct 2026)
 
-Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-08. It has 4,217 rows and SHA-256 `44d92e48…` (see [`data/manifest.json`](data/manifest.json)). It was produced by the [`Refresh backtest`](.github/workflows/refresh-backtest.yml) workflow on 2026-10-08.
+Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-07. It has 4,216 rows and SHA-256 `c9c5e42c…` (see [`data/manifest.json`](data/manifest.json)). It was produced by the [`Refresh backtest`](.github/workflows/refresh-backtest.yml) workflow on 2026-10-08.
 
 ### 1. Nothing beats the random walk, and the most flexible model is significantly worse
 
@@ -22,8 +22,8 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 | Ridge (13 features) | 0.998 | 0.993 | **0.965** | No at any horizon (p ≥ 0.45) |
 | Drift (252-day mean) | 1.001 | 0.992 | 0.999 | No (p ≥ 0.49) |
 | SES level | 1.000 | 1.001 | 1.001 | No (p ≥ 0.31) |
-| Gradient boosting (13 features) | 1.013 | 1.032 | 1.038 | **Worse** at 5d (p = 0.001) and 21d (p = 0.023) |
-| Moving-average level | 1.548 | 1.137 | 1.040 | **Worse** at every horizon (p < 0.001) |
+| Gradient boosting (13 features) | 1.013 | 1.032 | 1.039 | **Worse** at 5d (p = 0.001) and 21d (p = 0.021) |
+| Moving-average level | 1.547 | 1.137 | 1.040 | **Worse** at every horizon (p < 0.001) |
 
 ![Cumulative squared-error advantage over the random walk](outputs/backtest/cumulative_advantage.png)
 
@@ -42,9 +42,9 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 
 ![Trailing 252-day coverage of 1-day 95% intervals](outputs/backtest/rolling_coverage.png)
 
-- **Only the conformal interval passes the coverage test.** Kupiec p = 0.73 at 80% and 0.50 at 95%. The static and EWMA-normal intervals are rejected at both levels.
+- **Only the conformal interval passes the coverage test.** Kupiec p = 0.74 at 80% and 0.50 at 95%. The static and EWMA-normal intervals are rejected at both levels.
 - **A constant-width interval fails when it matters.** It covers 90.7% instead of 95% in volatile periods, and its trailing-year coverage fell to 83% in early 2021. It over-covers in calm periods.
-- **At 21 days the picture changes.** Conformal coverage is right on average (79.2% / 95.1%) but uneven by regime: 87.5% in high-volatility periods and 69.4% in low-volatility periods at the 80% level. The static interval has the better interval score at 21 days (both levels) and at 5 days for 95%. Volatility mean-reverts over a month, and scaling today's EWMA volatility by √h ignores that. A volatility model with mean reversion (e.g. GARCH) is the natural next step for longer horizons.
+- **At 21 days the picture changes.** Conformal coverage is right on average (79.1% / 95.1%) but uneven by regime: 87.4% in high-volatility periods and 69.4% in low-volatility periods at the 80% level. The static interval has the better interval score at 21 days (both levels) and at 5 days for 95%. Volatility mean-reverts over a month, and scaling today's EWMA volatility by √h ignores that. A volatility model with mean reversion (e.g. GARCH) is the natural next step for longer horizons.
 
 Full tables: [`accuracy.csv`](outputs/backtest/accuracy.csv) · [`interval_calibration.csv`](outputs/backtest/interval_calibration.csv) · [all forecasts](outputs/backtest/predictions.csv.gz) · [run manifest](outputs/backtest/run_manifest.json).
 

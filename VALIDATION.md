@@ -26,4 +26,4 @@ Historical records are not labelled as freshly reproduced results.
 ## Unsettled-session fix — 2026-10-08
 
 - The first manual `Live forecast` run (16:51 UTC, during US trading hours) used an intraday price as the 2026-10-08 close. The first backtest snapshot (downloaded 16:37 UTC) also ended with that partial bar, which entered one scored 1-day outcome.
-- Downloads now drop any session that has not settled. A session counts as settled after 17:00 New York time; a test covers this. The intraday live forecast rows were removed rather than kept as a track record, and the backtest was refreshed on settled bars only.
+- Downloads now drop any session that has not settled. A session counts as settled after 17:00 New York time; a test covers this. The intraday live forecast rows were removed rather than kept as a track record, and the backtest was refreshed on settled bars only. The refreshed snapshot ends 2026-10-07 (4,216 rows, SHA-256 `c9c5e42cd31b448857a8933586d1a2631cc9b57755d4cfdc09070ddd60cd6fb0`). It gives 2,705 1-day origins, and every conclusion in the README is unchanged.
