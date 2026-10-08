@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 RAW_FILE = ROOT / "data/raw/AAPL_daily_2023_2024_raw.csv"
 OUTPUT_DIR = ROOT / "data/processed"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
