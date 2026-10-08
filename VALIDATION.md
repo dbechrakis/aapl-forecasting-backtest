@@ -12,4 +12,13 @@ Historical records are not labelled as freshly reproduced results.
 - A look-ahead test perturbs every price after a cutoff. It requires features, point forecasts, tuning and interval bounds up to the cutoff to stay identical. Two deliberate leaks were injected (training on unmatured labels, conformal quantiles over unmatured outcomes), and each made the test fail.
 - 20 tests pass on Python 3.12 with the pinned requirements, and Ruff passes.
 - The full pipeline ran on a 4,200-day synthetic GARCH series: backtest about 90 s, then evidence check and live forecast/scoring. Results are described in the README as a method sanity check only.
-- **No AAPL results were produced.** The development environment's network policy blocked every price provider tried (Stooq, Yahoo, Alpha Vantage, Nasdaq). AAPL evidence will come from the `Refresh backtest` workflow and will be recorded here with its snapshot fingerprint.
+- No AAPL results were produced in the development environment; AAPL evidence comes from the `Refresh backtest` workflow (below).
+
+## First AAPL backtest — 2026-10-08
+
+- The first `Refresh backtest` run failed. AAPL's genuine -52% day on 2000-09-29 tripped the split check before the pre-2010 history was trimmed. Validation now applies to the analysed window only (with a test), and Yahoo is tried first because Stooq serves a browser challenge to scripts.
+- The second run downloaded 4,217 Yahoo adjusted daily rows (2010-01-04 to 2026-10-08), SHA-256 `44d92e48ad954becd81a8ca010aef1b0e79bbbfaff08b061d6bdee5ffae3ee1c`. It backtested 2,706 origins (2016-01-04 to 2026-10-07), passed the evidence check, and committed `outputs/backtest/`.
+- Headline results, reported in the README:
+  - No model is significantly better than the random walk at any horizon.
+  - Gradient boosting is significantly worse at 5 and 21 days.
+  - Only the conformal 1-day intervals pass Kupiec's coverage test, at both 80% and 95%.
