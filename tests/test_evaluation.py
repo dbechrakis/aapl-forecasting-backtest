@@ -69,6 +69,26 @@ class AccuracyTableTests(unittest.TestCase):
         self.assertTrue(np.isnan(table.loc["Random walk", "direction_hit_rate"]))
 
 
+class DownloadTests(unittest.TestCase):
+    def test_moves_before_the_start_date_do_not_block_the_snapshot(self):
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+
+        from aapl_forecast import data
+
+        frame = garch_prices(n=300, start="2009-06-01").reset_index()
+        crash = frame["Date"] < pd.Timestamp("2009-09-01")
+        for column in ["Open", "High", "Low", "Close"]:
+            frame.loc[crash, column] *= 3  # a >100% "move" inside the excluded window
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(
+            data.SOURCES, {"yahoo": lambda symbol: frame, "stooq": lambda symbol: frame}
+        ):
+            snapshot, source = data.download_prices("AAPL", Path(tmp) / "a.csv", start="2010-01-01")
+        self.assertEqual(source, "yahoo")
+        self.assertEqual(snapshot.first_date, "2010-01-01")
+
+
 class ValidationTests(unittest.TestCase):
     def frame(self):
         return garch_prices(n=50).reset_index()

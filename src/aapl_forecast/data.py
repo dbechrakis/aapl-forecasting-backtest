@@ -88,7 +88,8 @@ def from_yahoo(symbol: str) -> pd.DataFrame:
     return frame
 
 
-SOURCES = {"stooq": from_stooq, "yahoo": from_yahoo}
+# Stooq now answers scripted requests with a browser challenge, so Yahoo goes first.
+SOURCES = {"yahoo": from_yahoo, "stooq": from_stooq}
 
 
 def download_prices(symbol: str, target: Path, start: str = "2010-01-01") -> tuple[Snapshot, str]:
@@ -96,7 +97,11 @@ def download_prices(symbol: str, target: Path, start: str = "2010-01-01") -> tup
     errors = []
     for name, fetch in SOURCES.items():
         try:
-            prices = validate_prices(fetch(symbol)).loc[start:]
+            raw = fetch(symbol)
+            # Trim before validating: checks apply to the analysed window only (AAPL's genuine
+            # -52% day on 2000-09-29 would otherwise read as an unadjusted split).
+            raw = raw[pd.to_datetime(raw["Date"]) >= pd.Timestamp(start)]
+            prices = validate_prices(raw)
         except Exception as error:  # noqa: BLE001 - report every source failure together
             errors.append(f"{name}: {error}")
             continue
