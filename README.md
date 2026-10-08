@@ -1,6 +1,6 @@
 # AAPL Forecasting — Rolling-Origin Backtest and Live Interval Forecasts
 
-[![Evidence checks](https://github.com/dbechrakis/aapl-stock-exploratory-analysis/actions/workflows/evidence.yml/badge.svg)](https://github.com/dbechrakis/aapl-stock-exploratory-analysis/actions/workflows/evidence.yml)
+[![Evidence checks](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml/badge.svg)](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml)
 
 A forecasting study that answers two separate questions honestly. The results are below.
 
