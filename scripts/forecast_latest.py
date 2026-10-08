@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from aapl_forecast.backtest import HORIZONS
-from aapl_forecast.data import download_prices, load_prices
+from aapl_forecast.data import MARKET_TZ, download_prices, load_prices
 from aapl_forecast.features import target
 from aapl_forecast.garch import garch_scale
 from aapl_forecast.intervals import LEVELS, conformal_bounds
@@ -81,6 +81,11 @@ def score(log: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
     return log
 
 
+def issuable(origin: pd.Timestamp, now: datetime) -> bool:
+    """Issue only on the origin's own evening: later, the next session's prices are known."""
+    return pd.Timestamp(now).tz_convert(MARKET_TZ).date() == origin.date()
+
+
 def track_record(log: pd.DataFrame) -> pd.DataFrame:
     scored = log.dropna(subset=["inside"])
     if scored.empty:
@@ -106,8 +111,11 @@ def main() -> None:
 
     log = pd.read_csv(LOG, dtype={"origin": str}) if LOG.exists() else pd.DataFrame(columns=COLUMNS)
     origin = prices.index[-1].date().isoformat()
+    now = datetime.now(timezone.utc)
     if origin in set(log["origin"]):
         print(f"Forecasts for {origin} already issued; scoring only")
+    elif not args.prices and not issuable(prices.index[-1], now):
+        print(f"Latest settled close is {origin}, not today in New York; scoring only")
     else:
         issued = issue(prices, datetime.now(timezone.utc).isoformat(timespec="seconds"))
         log = pd.concat([log, issued], ignore_index=True) if len(log) else issued.reindex(columns=COLUMNS)

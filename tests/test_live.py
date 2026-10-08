@@ -8,7 +8,7 @@ import pandas as pd
 from synthetic import garch_prices
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from forecast_latest import COLUMNS, issue, score, track_record  # noqa: E402
+from forecast_latest import COLUMNS, issuable, issue, score, track_record  # noqa: E402
 
 
 class LiveForecastTests(unittest.TestCase):
@@ -37,6 +37,16 @@ class LiveForecastTests(unittest.TestCase):
         b = score(log, rescaled)
         pd.testing.assert_series_equal(a["inside"], b["inside"])
         self.assertEqual(len(track_record(a)), 6)
+
+
+class IssueTimingTests(unittest.TestCase):
+    def test_only_issued_on_the_origin_evening(self):
+        from datetime import datetime, timezone
+
+        origin = pd.Timestamp("2026-10-07")
+        self.assertTrue(issuable(origin, datetime(2026, 10, 7, 23, 17, tzinfo=timezone.utc)))
+        # Next day during trading hours: the 10-08 session is partly known, so no new issue.
+        self.assertFalse(issuable(origin, datetime(2026, 10, 8, 16, 51, tzinfo=timezone.utc)))
 
 
 if __name__ == "__main__":
