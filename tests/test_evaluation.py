@@ -89,6 +89,19 @@ class DownloadTests(unittest.TestCase):
         self.assertEqual(snapshot.first_date, "2010-01-01")
 
 
+class SettledSessionTests(unittest.TestCase):
+    def test_intraday_bar_is_dropped_until_after_the_close(self):
+        from datetime import datetime, timezone
+
+        from aapl_forecast.data import drop_unsettled_session
+
+        prices = garch_prices(n=10, start="2026-10-01")  # last bar: Wednesday 2026-10-14
+        during = drop_unsettled_session(prices, datetime(2026, 10, 14, 16, 51, tzinfo=timezone.utc))
+        after = drop_unsettled_session(prices, datetime(2026, 10, 14, 23, 17, tzinfo=timezone.utc))
+        self.assertEqual(during.index[-1], pd.Timestamp("2026-10-13"))
+        self.assertEqual(after.index[-1], pd.Timestamp("2026-10-14"))
+
+
 class ValidationTests(unittest.TestCase):
     def frame(self):
         return garch_prices(n=50).reset_index()

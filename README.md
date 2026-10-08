@@ -109,7 +109,7 @@ The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -r requirements.txt
-make check        # lint + evidence + 21 tests (~5 s)
+make check        # lint + evidence + 22 tests (~5 s)
 make data         # download and fingerprint the snapshot (Yahoo, with Stooq as fallback)
 make backtest     # ~2 min; writes outputs/backtest/
 make forecast     # issue and score live forecasts

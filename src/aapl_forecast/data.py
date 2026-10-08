@@ -1,6 +1,7 @@
 """Price download, validation and fingerprinting."""
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import hashlib
 import io
 import json
@@ -17,6 +18,9 @@ YAHOO_URL = (
     "?period1=0&period2=9999999999&interval=1d&events=split%2Cdiv"
 )
 COLUMNS = ["Date", "Open", "High", "Low", "Close", "Volume"]
+MARKET_TZ = "America/New_York"
+# Providers can lag the 16:00 close; treat a session as complete only after 17:00 New York time.
+SETTLED_AFTER_HOUR = 17
 
 
 @dataclass(frozen=True)
@@ -57,6 +61,13 @@ def validate_prices(frame: pd.DataFrame) -> pd.DataFrame:
     return prices.astype({"Volume": "float64"})
 
 
+def drop_unsettled_session(prices: pd.DataFrame, now: datetime | None = None) -> pd.DataFrame:
+    """Drop bars for sessions that have not closed yet, so a live price is never used as a close."""
+    now = pd.Timestamp(now or datetime.now(timezone.utc)).tz_convert(MARKET_TZ)
+    last_settled = now.normalize() if now.hour >= SETTLED_AFTER_HOUR else now.normalize() - pd.Timedelta(days=1)
+    return prices.loc[prices.index <= last_settled.tz_localize(None)]
+
+
 def _fetch(url: str) -> bytes:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0 (aapl-forecast research)"})
     return urlopen(request, timeout=60).read()
@@ -92,7 +103,9 @@ def from_yahoo(symbol: str) -> pd.DataFrame:
 SOURCES = {"yahoo": from_yahoo, "stooq": from_stooq}
 
 
-def download_prices(symbol: str, target: Path, start: str = "2010-01-01") -> tuple[Snapshot, str]:
+def download_prices(
+    symbol: str, target: Path, start: str = "2010-01-01", now: datetime | None = None
+) -> tuple[Snapshot, str]:
     """Try each source in turn, validate, and save a fingerprinted CSV snapshot."""
     errors = []
     for name, fetch in SOURCES.items():
@@ -101,7 +114,7 @@ def download_prices(symbol: str, target: Path, start: str = "2010-01-01") -> tup
             # Trim before validating: checks apply to the analysed window only (AAPL's genuine
             # -52% day on 2000-09-29 would otherwise read as an unadjusted split).
             raw = raw[pd.to_datetime(raw["Date"]) >= pd.Timestamp(start)]
-            prices = validate_prices(raw)
+            prices = drop_unsettled_session(validate_prices(raw), now)
         except Exception as error:  # noqa: BLE001 - report every source failure together
             errors.append(f"{name}: {error}")
             continue
