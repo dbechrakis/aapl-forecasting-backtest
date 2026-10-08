@@ -1,0 +1,11 @@
+{
+  "symbol": "AAPL",
+  "source": "yahoo",
+  "adjustment": "split- and dividend-adjusted closes as provided by the source",
+  "downloaded_at_utc": "2026-10-08T16:37:24+00:00",
+  "path": "data/raw/aapl_daily.csv",
+  "sha256": "44d92e48ad954becd81a8ca010aef1b0e79bbbfaff08b061d6bdee5ffae3ee1c",
+  "rows": 4217,
+  "first_date": "2010-01-04",
+  "last_date": "2026-10-08"
+}
