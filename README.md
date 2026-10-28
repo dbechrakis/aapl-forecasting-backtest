@@ -1,4 +1,4 @@
-# AAPL Forecasting — Rolling-Origin Backtest and Live Interval Forecasts
+# AAPL Forecasting: Rolling-Origin Backtest and Live Interval Forecasts
 
 [![Evidence checks](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml/badge.svg)](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml)
 
@@ -11,7 +11,7 @@ The two questions are kept apart because they usually have different answers. Di
 
 **Stack:** Python · pandas · NumPy · SciPy · scikit-learn · arch (GARCH) · Matplotlib · GitHub Actions
 
-## Results (AAPL, 2,705 daily origins, Jan 2016 – Oct 2026)
+## Results (AAPL, 2,705 daily origins, Jan 2016 to Oct 2026)
 
 Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-07. It has 4,216 rows and SHA-256 `c9c5e42c…` (see [`data/manifest.json`](data/manifest.json)). It was produced by the [`Refresh backtest`](.github/workflows/refresh-backtest.yml) workflow on 2026-10-08.
 
@@ -27,8 +27,8 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 
 ![Cumulative squared-error advantage over the random walk](outputs/backtest/cumulative_advantage.png)
 
-- **Ridge's 3.5% lower 21-day MAE is not evidence of skill.** The Diebold–Mariano test cannot separate it from the random walk (p = 0.11 on absolute error, p = 0.96 on squared error). The cumulative plot shows the advantage repeatedly appearing and vanishing.
-- **Gradient boosting fits noise.** Its losses pile up after the 2019–2020 regime changes. That is the expected failure mode of a flexible learner on a near-unpredictable target.
+- **Ridge's 3.5% lower 21-day MAE is not evidence of skill.** The Diebold-Mariano test cannot separate it from the random walk (p = 0.11 on absolute error, p = 0.96 on squared error). The cumulative plot shows the advantage repeatedly appearing and vanishing.
+- **Gradient boosting fits noise.** Its losses pile up after the 2019 to 2020 regime changes. That is the expected failure mode of a flexible learner on a near-unpredictable target.
 - **Direction:** no model's hit rate beats the trivial "always up" rate for the same period (53.6% at 1d, 58.5% at 5d, 64.4% at 21d). The best is Ridge at 61.3% for 21 days.
 - The tuning of the coursework smoothers itself points to the random walk. On the pre-2016 burn-in, SES chose α = 0.95 and the moving average chose its shortest window (5 days).
 
@@ -44,7 +44,7 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 
 ![Trailing 252-day coverage of 1-day 95% intervals](outputs/backtest/rolling_coverage.png)
 
-- **Only the conformal intervals pass the coverage test at both levels.** Kupiec p = 0.74 at 80% for both conformal methods. The static and EWMA-normal intervals are rejected at both levels; GARCH-normal passes at 95% but over-covers at 80%.
+- **Only the conformal intervals pass the coverage test at both levels.** Kupiec p = 0.74 at 80% for both conformal methods. The static and EWMA-normal intervals are rejected at both levels. GARCH-normal passes at 95% but over-covers at 80%.
 - **A constant-width interval fails when it matters.** It covers 90.7% instead of 95% in volatile periods, and its trailing-year coverage fell to 83% in early 2021. It over-covers in calm periods.
 - **Mean-reverting volatility fixes the long horizons.** Scaling today's EWMA volatility by √h assumes volatility stays put for the whole month. EWMA-conformal intervals were right on average at 21 days, but they covered 87.4% in volatile periods and 69.4% in calm ones (80% target), and the plain static interval beat them on interval score. A GARCH(1,1), refitted every 21 days on data up to the origin, forecasts each day's variance decaying back towards its long-run level:
 
@@ -75,7 +75,7 @@ flowchart LR
 
 | Model | What it forecasts | Fitted on |
 |---|---|---|
-| Random walk | zero return (benchmark) | — |
+| Random walk | zero return (benchmark) | n/a |
 | Drift | trailing 252-day mean return × h | expanding history |
 | SES level / moving-average level | mean reversion towards a smoothed price, from the original coursework | α and window tuned once, on the pre-2016 burn-in |
 | Ridge | 13 features: momentum, realised and EWMA volatility, 52-week-high distance, range, volume z-score, weekday | refitted every 21 trading days |
@@ -87,18 +87,18 @@ flowchart LR
 - At a refit on day *t*, a training row *j* is used only if its label had matured, meaning *j + h ≤ t*. Overlapping multi-day labels therefore never reach past the origin.
 - Smoother hyperparameters are tuned once, on targets that matured before the first origin.
 - Conformal intervals at *t* use only standardized outcomes that had matured by *t*.
-- **Test:** perturbing every price after day *t* must leave features, point forecasts, tuning and interval bounds at or before *t* bit-identical. Deliberately reintroducing either leak makes the test fail; this was checked by mutation.
+- **Test:** perturbing every price after day *t* must leave features, point forecasts, tuning and interval bounds at or before *t* bit-identical. Deliberately reintroducing either leak makes the test fail. This was checked by mutation.
 
 ### Evaluation
 
 - **Accuracy:** MAE and RMSE as ratios to the random walk (below 1 beats it).
-- **Significance:** Diebold–Mariano with the Harvey–Leybourne–Newbold small-sample correction. A long-run variance up to lag *h − 1* accounts for overlapping multi-day errors.
+- **Significance:** Diebold-Mariano with the Harvey-Leybourne-Newbold small-sample correction. A long-run variance up to lag *h − 1* accounts for overlapping multi-day errors.
 - **Direction:** hit rate, compared with the trivial "always up" rate over the same period. A directional claim must beat that rate, not 50%.
 - **Intervals at 80% and 95%:**
   - Five methods are compared, all centred on the random walk:
-    - static normal;
-    - EWMA normal (RiskMetrics λ = 0.94);
-    - GARCH(1,1) normal, refitted every 21 days with the h-day variance reverting to its long-run level;
+    - static normal
+    - EWMA normal (RiskMetrics λ = 0.94)
+    - GARCH(1,1) normal, refitted every 21 days with the h-day variance reverting to its long-run level
     - two split-conformal versions, which scale empirical quantiles of the last 1,000 matured standardized outcomes by EWMA or by GARCH volatility.
   - Each is scored on coverage overall and in the high- and low-volatility halves, on mean width and on the Winkler interval score.
   - Kupiec's proportion-of-failures test is reported at h = 1, the only horizon where outcomes are independent.
@@ -112,11 +112,11 @@ flowchart LR
 3. Scores every earlier forecast whose horizon has passed.
 4. Commits the result to [`outputs/live/forecast_log.csv`](outputs/live/) and [`track_record.csv`](outputs/live/).
 
-The bounds are stored in log-return space and scored with close-to-close ratios. A later dividend re-adjustment of the price history therefore cannot change a past score; a test covers this. The log is append-only and timestamped. Over time it becomes an out-of-sample record that no backtest can be tuned to.
+The bounds are stored in log-return space and scored with close-to-close ratios. A later dividend re-adjustment of the price history therefore cannot change a past score. A test covers this. The log is append-only and timestamped. Over time it becomes an out-of-sample record that no backtest can be tuned to.
 
 ## Synthetic sanity check
 
-The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the right answer is known: direction is unpredictable and volatility clusters. As expected, no model beats the random walk there and the conformal interval is calibrated. This checks the method; it says nothing about AAPL.
+The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the right answer is known: direction is unpredictable and volatility clusters. As expected, no model beats the random walk there and the conformal interval is calibrated. This checks the method. It says nothing about AAPL.
 
 ## Run locally
 
@@ -147,20 +147,20 @@ coursework/          # Original January-window coursework experiment (archived)
 
 ## Original coursework (archived)
 
-The project began as an MSc coursework experiment. It trained on January only and forecast February–December price levels for 2023 and 2024, using naive, moving-average, SES and trend-seasonal methods. That code now sits in [`coursework/`](coursework/), with its corrected tuning rules still under test.
+The project began as an MSc coursework experiment. It trained on January only and forecast February to December price levels for 2023 and 2024, using naive, moving-average, SES and trend-seasonal methods. That code now sits in [`coursework/`](coursework/), with its corrected tuning rules still under test.
 
 Its historical score table stays withdrawn: the original source CSV was never committed, so it cannot be reproduced. The rolling-origin study replaces that design, which had one training window per year and a single long horizon. The report and presentation are archived coursework artifacts. The original report credits Nikitas Valtadoros, David Frederick and Dimitrios Bechrakis.
 
 ## Limitations
 
-- Prices come from a free provider's adjusted series (Yahoo; Stooq now serves a browser challenge to scripts). Adjustment conventions differ between providers, so the snapshot fingerprint matters more than the source name.
+- Prices come from a free provider's adjusted series (Yahoo, since Stooq now serves a browser challenge to scripts). Adjustment conventions differ between providers, so the snapshot fingerprint matters more than the source name.
 - One asset only. A positive finding on AAPL would still need testing on other tickers before it could be called general.
 - No transaction costs or trading rules. This is forecast evaluation, not a strategy backtest.
 - Learned models are refitted every 21 trading days, not daily, to keep compute small.
 
 ## Author
 
-**Dimitris Bechrakis** — MSc Data Science, The American College of Greece.
+**Dimitris Bechrakis**, MSc Data Science, The American College of Greece.
 
 ## Licensing
 
