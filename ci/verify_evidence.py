@@ -31,6 +31,6 @@ live=ROOT/'outputs/live/forecast_log.csv'
 if live.exists():
     for r in table('outputs/live/forecast_log.csv'):
         assert float(r['lower_return'])<0<float(r['upper_return'])
-        assert r['inside'] in ('','0.0','1.0','0','1')
+        assert r['inside']=='' or float(r['inside']) in (0.0,1.0)
 
 print('Committed evidence and syntax checks passed; see VALIDATION.md for rerun scope.')
