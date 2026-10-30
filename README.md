@@ -149,7 +149,7 @@ coursework/          # Original January-window coursework experiment (archived)
 
 The project began as an MSc coursework experiment. It trained on January only and forecast February to December price levels for 2023 and 2024, using naive, moving-average, SES and trend-seasonal methods. That code now sits in [`coursework/`](coursework/), with its corrected tuning rules still under test.
 
-Its historical score table stays withdrawn: the original source CSV was never committed, so it cannot be reproduced. The rolling-origin study replaces that design, which had one training window per year and a single long horizon. The report and presentation are archived coursework artifacts. The original report credits Nikitas Valtadoros, David Frederick and Dimitrios Bechrakis.
+Its historical score table stays withdrawn: the original source CSV was never committed, so it cannot be reproduced. The rolling-origin study replaces that design, which had one training window per year and a single long horizon. The [report](coursework/Final_Report.docx) and [presentation](coursework/ITC6002_Final_Project_Presentation.pptx) are archived coursework artifacts. The original report credits Nikitas Valtadoros, David Frederick and Dimitrios Bechrakis.
 
 ## Limitations
 
