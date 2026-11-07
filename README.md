@@ -2,6 +2,8 @@
 
 [![Evidence checks](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml/badge.svg)](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml)
 
+**Result:** Across 2,705 daily origins, no model significantly beats the random walk on returns. GARCH-conformal intervals have the best interval score.
+
 A forecasting study that answers two separate questions honestly. The results are below.
 
 1. **Can any model beat the random walk at forecasting AAPL's 1-, 5- and 21-day returns?** If it does, is the gain statistically significant?
