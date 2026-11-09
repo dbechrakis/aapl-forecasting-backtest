@@ -114,6 +114,21 @@ flowchart LR
 3. Scores every earlier forecast whose horizon has passed.
 4. Commits the result to [`outputs/live/forecast_log.csv`](outputs/live/) and [`track_record.csv`](outputs/live/).
 
+<!-- live-track-record:start -->
+Live GARCH-conformal forecasts issued since 2026-10-08: 21 origins, 74 intervals scored so far (latest outcome 2026-11-06). Updated automatically after each US close.
+
+| Horizon | Level | Scored | Live coverage (95% interval) | Backtest coverage |
+|---:|---:|---:|---|---:|
+| 1d | 80% | 20 | 80.0% (58% to 92%) | 80.3% |
+| 1d | 95% | 20 | 95.0% (76% to 99%) | 94.6% |
+| 5d | 80% | 16 | 93.8% (72% to 99%) | 79.5% |
+| 5d | 95% | 16 | 100.0% (81% to 100%) | 94.7% |
+| 21d | 80% | 1 | 100.0% (21% to 100%) | 78.9% |
+| 21d | 95% | 1 | 100.0% (21% to 100%) | 94.7% |
+
+Overlapping multi-day intervals are not independent, so the 5- and 21-day intervals are optimistic. A live coverage far outside its interval is a reason to look, not proof of a miscalibrated method.
+<!-- live-track-record:end -->
+
 The bounds are stored in log-return space and scored with close-to-close ratios. A later dividend re-adjustment of the price history therefore cannot change a past score. A test covers this. The log is append-only and timestamped. Over time it becomes an out-of-sample record that no backtest can be tuned to.
 
 ## Synthetic sanity check
@@ -125,7 +140,7 @@ The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -r requirements.txt
-make check        # lint + evidence + 25 tests (~10 s)
+make check        # lint + evidence + 28 tests (~10 s)
 make data         # download and fingerprint the snapshot (Yahoo, with Stooq as fallback)
 make backtest     # ~2 min; writes outputs/backtest/
 make forecast     # issue and score live forecasts
