@@ -2,7 +2,7 @@
 
 [![Evidence checks](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml/badge.svg)](https://github.com/dbechrakis/aapl-forecasting-backtest/actions/workflows/evidence.yml)
 
-**Result:** Across 2,705 daily origins, no model significantly beats the random walk on returns. GARCH-conformal intervals have the best interval score.
+**Result:** Across 2,705 daily origins, no model significantly beats the random walk on returns. GARCH-conformal intervals have the best interval score at 80%, and plain GARCH at 95%.
 
 A forecasting study that answers two separate questions honestly. The results are below.
 
@@ -56,7 +56,7 @@ Snapshot: Yahoo split- and dividend-adjusted daily bars, 2010-01-04 to 2026-10-0
 | EWMA conformal | 79.1% | 87.4% | 69.4% | 0.297 |
 | **GARCH conformal** | **78.9%** | **79.5%** | **78.2%** | **0.278** |
 
-GARCH-conformal has the best interval score at 80% for every horizon. Plain GARCH has the best at 95%. The live forecast therefore uses GARCH-conformal.
+GARCH-conformal has the best interval score at 80% for every horizon. Plain GARCH has the best at 95%, by 0.7% to 1.9% of the score. The live forecast uses GARCH-conformal at both levels, so its 95% intervals are a little behind the best method in the backtest.
 
 Full tables: [`accuracy.csv`](outputs/backtest/accuracy.csv) · [`interval_calibration.csv`](outputs/backtest/interval_calibration.csv) · [all forecasts](outputs/backtest/predictions.csv.gz) · [run manifest](outputs/backtest/run_manifest.json).
 
@@ -125,7 +125,7 @@ The test suite also runs the pipeline on simulated GARCH(1,1) prices, where the 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -r requirements.txt
-make check        # lint + evidence + 24 tests (~10 s)
+make check        # lint + evidence + 25 tests (~10 s)
 make data         # download and fingerprint the snapshot (Yahoo, with Stooq as fallback)
 make backtest     # ~2 min; writes outputs/backtest/
 make forecast     # issue and score live forecasts
