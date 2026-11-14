@@ -5,7 +5,6 @@ download or to validate is dropped and named. Prices are not committed. The mani
 """
 
 import json
-import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
@@ -48,15 +47,20 @@ def analyse_ticker(prices: pd.DataFrame, start: str = START, factories=None, ref
 
 
 def fetch_and_analyse(symbol: str) -> dict:
-    os.environ["OMP_NUM_THREADS"] = "1"
+    saved = CACHE / f"result_{symbol}.pkl"
+    if saved.exists():
+        return pd.read_pickle(saved)
     try:
         snapshot, source = download_prices(symbol, CACHE / f"{symbol}.csv")
         prices = load_prices(snapshot.path, snapshot.sha256)
         accuracy, calibration = analyse_ticker(prices)
     except Exception as error:  # noqa: BLE001
         return {"symbol": symbol, "error": str(error)}
-    return {"symbol": symbol, "source": source, "sha256": snapshot.sha256, "rows": snapshot.rows, "first_date": snapshot.first_date,
-            "last_date": snapshot.last_date, "accuracy": accuracy.assign(ticker=symbol), "calibration": calibration.assign(ticker=symbol)}
+    result = {"symbol": symbol, "source": source, "sha256": snapshot.sha256, "rows": snapshot.rows, "first_date": snapshot.first_date,
+              "last_date": snapshot.last_date, "accuracy": accuracy.assign(ticker=symbol), "calibration": calibration.assign(ticker=symbol)}
+    pd.to_pickle(result, saved)
+    print(f"{symbol} done", flush=True)
+    return result
 
 
 def point_summary(accuracy: pd.DataFrame, alpha: float = ALPHA) -> pd.DataFrame:
