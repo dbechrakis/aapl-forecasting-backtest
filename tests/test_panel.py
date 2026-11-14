@@ -1,15 +1,15 @@
 import importlib.util
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
+from synthetic import garch_prices
+from test_backtest import START, perturb_after
 
 from aapl_forecast.backtest import run_backtest
 from aapl_forecast.intervals import interval_forecasts
-from synthetic import garch_prices
-from test_backtest import START, perturb_after
 
 SPEC = importlib.util.spec_from_file_location("run_panel", Path(__file__).resolve().parents[1] / "scripts" / "run_panel.py")
 run_panel = importlib.util.module_from_spec(SPEC)

@@ -8,12 +8,11 @@ Parameters are re-estimated every ``refit_every`` trading days on returns up to 
 
 import warnings
 
-from arch import arch_model
 import numpy as np
 import pandas as pd
+from arch import arch_model
 
 from aapl_forecast.features import log_returns
-
 
 SCALE = 100.0  # arch optimises better on percentage returns
 

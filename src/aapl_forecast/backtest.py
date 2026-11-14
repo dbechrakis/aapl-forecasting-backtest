@@ -16,7 +16,6 @@ from sklearn.preprocessing import StandardScaler
 
 from aapl_forecast.features import build_features, target
 
-
 HORIZONS = (1, 5, 21)
 FEATURES = [
     "r1", "mom5", "mom21", "mom63", "mom252", "vol5", "vol21", "vol63",

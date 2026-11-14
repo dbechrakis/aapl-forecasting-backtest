@@ -8,7 +8,7 @@ install:
 	$(PYTHON) -m pip install -r requirements.txt
 
 lint:
-	$(PYTHON) -m ruff check src scripts tests coursework --select E4,E7,E9,F
+	$(PYTHON) -m ruff check src scripts tests coursework
 
 evidence:
 	$(PYTHON) ci/verify_evidence.py

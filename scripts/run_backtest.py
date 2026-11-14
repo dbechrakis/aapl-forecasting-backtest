@@ -15,7 +15,6 @@ from aapl_forecast.data import load_prices  # noqa: E402
 from aapl_forecast.evaluation import BENCHMARK, accuracy_table  # noqa: E402
 from aapl_forecast.intervals import calibration_table, interval_forecasts  # noqa: E402
 
-
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs" / "backtest"
 START = "2016-01-01"

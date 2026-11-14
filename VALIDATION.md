@@ -50,3 +50,8 @@ Written before any ticker other than AAPL was downloaded or scored. The README s
 - **Intervals.** Per ticker, method, horizon and level: coverage and interval score. At horizon 1: the number of tickers whose Kupiec p-value is at least 0.05, for each method and level. Across tickers: the median interval score of each method relative to static normal.
 - **How it is read.** The AAPL findings are that no model beats the random walk, that gradient boosting is worse at 5 and 21 days, and that only the conformal 1-day intervals pass Kupiec at both levels. The README says for each of these whether the panel supports it, with counts. Nothing is retuned after the run.
 - **Limits.** Twenty related stocks share market moves, so their tests are not independent. Survivors only. Yahoo adjusted prices for every ticker.
+
+## Wider lint rules — 2026-11-14
+
+- Ruff now selects E, F, I, UP, B and SIM in `pyproject.toml`, with line length (E501), zip without strict (B905) and a call in a default argument (B008) ignored. The Makefile and the evidence workflow use that configuration. Before this the check selected syntax errors and unused names only.
+- 37 findings were fixed automatically, import order and `datetime.UTC`. No behaviour changed. The 34 tests and the evidence check pass. The backtest was not rerun.

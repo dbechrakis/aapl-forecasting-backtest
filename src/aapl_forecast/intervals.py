@@ -11,7 +11,6 @@ from scipy import stats
 from aapl_forecast.features import ewma_volatility, log_returns, target
 from aapl_forecast.garch import garch_scale
 
-
 LEVELS = (0.80, 0.95)
 METHODS = ["static", "ewma", "conformal", "garch", "garch_conformal"]
 CONFORMAL_WINDOW = 1000

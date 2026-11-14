@@ -4,10 +4,10 @@ Every ticker gets the same data validation, origins, horizons, models, intervals
 download or to validate is dropped and named. Prices are not committed. The manifest records each snapshot's fingerprint.
 """
 
-from concurrent.futures import ProcessPoolExecutor
-from datetime import datetime, timezone
 import json
 import os
+from concurrent.futures import ProcessPoolExecutor
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -17,7 +17,6 @@ from aapl_forecast.backtest import HORIZONS, run_backtest
 from aapl_forecast.data import download_prices, load_prices
 from aapl_forecast.evaluation import accuracy_table
 from aapl_forecast.intervals import calibration_table, interval_forecasts
-
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs" / "panel"
@@ -102,7 +101,7 @@ def main() -> None:
     intervals = interval_summary(calibration)
     point.to_csv(OUT / "point_summary.csv", index=False, float_format="%.6f")
     intervals.to_csv(OUT / "interval_summary.csv", index=False, float_format="%.6f")
-    manifest = {"run_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "start": START, "tickers_requested": list(TICKERS),
+    manifest = {"run_utc": datetime.now(UTC).isoformat(timespec="seconds"), "start": START, "tickers_requested": list(TICKERS),
                 "dropped": dropped, "snapshots": {r["symbol"]: {k: r[k] for k in ("source", "sha256", "rows", "first_date", "last_date")} for r in kept}}
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     with pd.option_context("display.width", 220):

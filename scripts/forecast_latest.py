@@ -9,9 +9,9 @@ later dividend re-adjustment of the price history cannot move past scores.
 """
 
 import argparse
-from datetime import datetime, timezone
-from pathlib import Path
 import tempfile
+from datetime import UTC, datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -21,7 +21,6 @@ from aapl_forecast.data import MARKET_TZ, download_prices, load_prices
 from aapl_forecast.features import target
 from aapl_forecast.garch import garch_scale
 from aapl_forecast.intervals import LEVELS, conformal_bounds
-
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG = ROOT / "outputs" / "live" / "forecast_log.csv"
@@ -111,13 +110,13 @@ def main() -> None:
 
     log = pd.read_csv(LOG, dtype={"origin": str}) if LOG.exists() else pd.DataFrame(columns=COLUMNS)
     origin = prices.index[-1].date().isoformat()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if origin in set(log["origin"]):
         print(f"Forecasts for {origin} already issued; scoring only")
     elif not args.prices and not issuable(prices.index[-1], now):
         print(f"Latest settled close is {origin}, not today in New York; scoring only")
     else:
-        issued = issue(prices, datetime.now(timezone.utc).isoformat(timespec="seconds"))
+        issued = issue(prices, datetime.now(UTC).isoformat(timespec="seconds"))
         log = pd.concat([log, issued], ignore_index=True) if len(log) else issued.reindex(columns=COLUMNS)
     log = score(log.reindex(columns=COLUMNS), prices)
 
