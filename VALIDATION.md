@@ -38,3 +38,15 @@ Historical records are not labelled as freshly reproduced results.
   - At 21 days and 80%, GARCH-conformal covers 79.5% in high-volatility and 78.2% in low-volatility periods, against 87.4% and 69.4% for EWMA-conformal.
 - The live forecast now issues GARCH-conformal intervals and records the method in each log row.
 - 24 tests pass and Ruff passes.
+
+## Does it hold beyond AAPL? Design fixed before the panel was run — 2026-11-14
+
+Written before any ticker other than AAPL was downloaded or scored. The README says a finding on AAPL alone would need testing on other tickers. This fixes the test.
+
+- **Tickers.** Twenty large US stocks, chosen by one rule that does not look at returns: the largest companies by market capitalisation among S&P 500 members at 31 December 2015, the date before the first origin. The ranking was recalled from memory and was not looked up, so the list below is what is fixed and the ranking may be off at the margin. Yahoo symbols: AAPL, GOOGL, MSFT, AMZN, XOM, BRK-B, META, GE, JNJ, WFC, JPM, PG, WMT, T, VZ, PFE, KO, DIS, CVX, HD. All were still listed in 2026. That is survivorship, and it is stated as a limit.
+- **Everything else as AAPL.** The same download and validation, the same window from 2010, origins from 2016-01-01, horizons 1, 5 and 21 days, refits every 21 trading days, the same models, the same intervals and the same tests. No setting is retuned per ticker.
+- **A ticker that fails** to download or to validate is dropped and named. It is not replaced.
+- **Point forecasts.** Per ticker, model and horizon, the ratio of RMSE to the random walk and the Diebold-Mariano p-value on squared error. Per model and horizon, across tickers: the number with p below 0.05, split into better and worse than the random walk, and the number that survive Benjamini-Hochberg at 5% across the tickers in that family.
+- **Intervals.** Per ticker, method, horizon and level: coverage and interval score. At horizon 1: the number of tickers whose Kupiec p-value is at least 0.05, for each method and level. Across tickers: the median interval score of each method relative to static normal.
+- **How it is read.** The AAPL findings are that no model beats the random walk, that gradient boosting is worse at 5 and 21 days, and that only the conformal 1-day intervals pass Kupiec at both levels. The README says for each of these whether the panel supports it, with counts. Nothing is retuned after the run.
+- **Limits.** Twenty related stocks share market moves, so their tests are not independent. Survivors only. Yahoo adjusted prices for every ticker.
