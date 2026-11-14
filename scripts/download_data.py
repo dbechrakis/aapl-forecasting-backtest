@@ -1,11 +1,10 @@
 """Download a fingerprinted AAPL daily price snapshot and record it in the manifest."""
 
-from datetime import datetime, timezone
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 from aapl_forecast.data import download_prices
-
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "data" / "raw" / "aapl_daily.csv"
@@ -18,7 +17,7 @@ def main() -> None:
         "symbol": "AAPL",
         "source": source,
         "adjustment": "split- and dividend-adjusted closes as provided by the source",
-        "downloaded_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "downloaded_at_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "path": str(TARGET.relative_to(ROOT)),
         "sha256": snapshot.sha256,
         "rows": snapshot.rows,

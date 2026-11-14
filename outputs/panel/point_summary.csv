@@ -1,0 +1,16 @@
+horizon,model,tickers,median_rmse_vs_rw,better_p_below_005,worse_p_below_005,better_after_bh,worse_after_bh
+1,Drift (252d mean),20,1.001497,0,2,0,0
+1,Gradient boosting (features),20,1.010645,0,10,0,3
+1,Moving-average level,20,1.435497,0,20,0,20
+1,Ridge (features),20,1.000546,0,0,0,0
+1,SES level,20,0.999209,1,0,0,0
+5,Drift (252d mean),20,1.007202,0,4,0,0
+5,Gradient boosting (features),20,1.035663,0,15,0,14
+5,Moving-average level,20,1.103749,0,20,0,20
+5,Ridge (features),20,1.012599,0,6,0,4
+5,SES level,20,0.999921,1,1,0,0
+21,Drift (252d mean),20,1.029362,0,3,0,0
+21,Gradient boosting (features),20,1.044977,0,7,0,2
+21,Moving-average level,20,1.024431,0,19,0,19
+21,Ridge (features),20,1.032643,0,4,0,0
+21,SES level,20,1.000117,0,0,0,0

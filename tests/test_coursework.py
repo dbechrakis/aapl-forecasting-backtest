@@ -5,7 +5,14 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "coursework"))
-from main import choose_ses_alpha, choose_ma_window, naive_forecast, moving_average_forecast, ses_forecast  # noqa: E402
+from main import (  # noqa: E402
+    choose_ma_window,
+    choose_ses_alpha,
+    moving_average_forecast,
+    naive_forecast,
+    ses_forecast,
+)
+
 
 class ForecastingTests(unittest.TestCase):
     def test_ses_uses_prior_level(self):

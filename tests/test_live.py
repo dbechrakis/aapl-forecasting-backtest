@@ -4,10 +4,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
 from synthetic import garch_prices
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+from datetime import UTC
+
 from forecast_latest import COLUMNS, issuable, issue, score, track_record  # noqa: E402
 
 
@@ -41,12 +42,12 @@ class LiveForecastTests(unittest.TestCase):
 
 class IssueTimingTests(unittest.TestCase):
     def test_only_issued_on_the_origin_evening(self):
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         origin = pd.Timestamp("2026-10-07")
-        self.assertTrue(issuable(origin, datetime(2026, 10, 7, 23, 17, tzinfo=timezone.utc)))
+        self.assertTrue(issuable(origin, datetime(2026, 10, 7, 23, 17, tzinfo=UTC)))
         # Next day during trading hours: the 10-08 session is partly known, so no new issue.
-        self.assertFalse(issuable(origin, datetime(2026, 10, 8, 16, 51, tzinfo=timezone.utc)))
+        self.assertFalse(issuable(origin, datetime(2026, 10, 8, 16, 51, tzinfo=UTC)))
 
 
 if __name__ == "__main__":

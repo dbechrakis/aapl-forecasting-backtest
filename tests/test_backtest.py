@@ -3,12 +3,11 @@ import unittest
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
+from synthetic import garch_prices
 
 from aapl_forecast.backtest import run_backtest
 from aapl_forecast.features import build_features, target
 from aapl_forecast.intervals import interval_forecasts
-from synthetic import garch_prices
-
 
 START = "2014-06-02"
 FAST_MODELS = {"Ridge (features)": lambda: Ridge(alpha=10.0)}

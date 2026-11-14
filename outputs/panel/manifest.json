@@ -1,0 +1,169 @@
+{
+  "run_utc": "2026-11-14T09:22:53+00:00",
+  "start": "2016-01-01",
+  "tickers_requested": [
+    "AAPL",
+    "GOOGL",
+    "MSFT",
+    "AMZN",
+    "XOM",
+    "BRK-B",
+    "META",
+    "GE",
+    "JNJ",
+    "WFC",
+    "JPM",
+    "PG",
+    "WMT",
+    "T",
+    "VZ",
+    "PFE",
+    "KO",
+    "DIS",
+    "CVX",
+    "HD"
+  ],
+  "dropped": {},
+  "snapshots": {
+    "AAPL": {
+      "source": "yahoo",
+      "sha256": "56c34193a2d743e35801c39029a5e653433942b7f1aa2c088a067d7769315fbe",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "GOOGL": {
+      "source": "yahoo",
+      "sha256": "554dcb2d8b3ffd471b07a9123b0f964231916025d9fc62dbae3a66cf1f166eb8",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "MSFT": {
+      "source": "yahoo",
+      "sha256": "4036919df75143fa2fa0614190ff1536f3acb784d6a984bcdbb7f3cb337cb9e2",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "AMZN": {
+      "source": "yahoo",
+      "sha256": "9aab84bdc006d9a4741ae538e1d0f4723a5dd296ea7df7bbd17bd4da946b89e8",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "XOM": {
+      "source": "yahoo",
+      "sha256": "93f2606a83c7de93acb6e50afd3b8ca50e1d68300506c8f616ceb3e33d2b3b4c",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "BRK-B": {
+      "source": "yahoo",
+      "sha256": "47bec0a72f9809a40b3043a271d27538feb5be8f91688641a575ebbcdc79c3e7",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "META": {
+      "source": "yahoo",
+      "sha256": "efdb5535e9a5c723ba567053fa29065f9d773fd89a064c50f8911f1d94039e3d",
+      "rows": 3644,
+      "first_date": "2012-05-18",
+      "last_date": "2026-11-13"
+    },
+    "GE": {
+      "source": "yahoo",
+      "sha256": "06dba65ecdd34d358608517a26a8790886ec2c751ce0139a8d742a03ca8204d3",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "JNJ": {
+      "source": "yahoo",
+      "sha256": "0f397bcaa887369472f3cf44f4782f13606e43a0a46d4fcd4e52694ce0c7a90b",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "WFC": {
+      "source": "yahoo",
+      "sha256": "f096cc592d6a70a7eb037d67980eb26402b7dee3ecd01ef82dd18f8ec752ab1e",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "JPM": {
+      "source": "yahoo",
+      "sha256": "a1f3e895eab4bb5d924d7cdcb6580d06cc4022dbb482653a2747bc59c562f69f",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "PG": {
+      "source": "yahoo",
+      "sha256": "b66026dbc0867404c81bdcee3857495196ff53202aa9f267dc3585158c9769cb",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "WMT": {
+      "source": "yahoo",
+      "sha256": "8898a68556bfe46a47fea53ad097f8f077e073c851beae45e32d246c0b72ade2",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "T": {
+      "source": "yahoo",
+      "sha256": "e113f20f896c7fdb9800d7b9e1c33c2183fb256db286a57553e79c91482a6cae",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "VZ": {
+      "source": "yahoo",
+      "sha256": "1ac18e5bb06e8751be9f561abaac15ba4b6467a95b007a4dbffb30a0519e2234",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "PFE": {
+      "source": "yahoo",
+      "sha256": "ce0a7b0978d40458ffce79af61aaf1241336ac04625cd492ff0ab60794b491fa",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "KO": {
+      "source": "yahoo",
+      "sha256": "a368c822481971f460759eb7680b2b8f6eca1c56ce42a655b022d765466056a4",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "DIS": {
+      "source": "yahoo",
+      "sha256": "8a70db1160d93aeed061d716ba20e4b64e2328b329e71fc9cdd4101ac9998411",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "CVX": {
+      "source": "yahoo",
+      "sha256": "bac14e5b5c1184872e80a65c1380c2ed220d7c4013aa7141686071d12fb400b9",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    },
+    "HD": {
+      "source": "yahoo",
+      "sha256": "59d8c4dbbcba7e625ad7cb1e84bb3c50390391389d930ab505d13deb83ac7d48",
+      "rows": 4243,
+      "first_date": "2010-01-04",
+      "last_date": "2026-11-13"
+    }
+  }
+}

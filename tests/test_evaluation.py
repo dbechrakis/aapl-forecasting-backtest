@@ -1,12 +1,18 @@
 import unittest
+from datetime import UTC
 
 import numpy as np
 import pandas as pd
+from synthetic import garch_prices
 
 from aapl_forecast.data import validate_prices
 from aapl_forecast.evaluation import accuracy_table, diebold_mariano
-from aapl_forecast.intervals import calibration_table, interval_forecasts, interval_score, kupiec_pof
-from synthetic import garch_prices
+from aapl_forecast.intervals import (
+    calibration_table,
+    interval_forecasts,
+    interval_score,
+    kupiec_pof,
+)
 
 
 class DieboldMarianoTests(unittest.TestCase):
@@ -91,13 +97,13 @@ class DownloadTests(unittest.TestCase):
 
 class SettledSessionTests(unittest.TestCase):
     def test_intraday_bar_is_dropped_until_after_the_close(self):
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from aapl_forecast.data import drop_unsettled_session
 
         prices = garch_prices(n=10, start="2026-10-01")  # last bar: Wednesday 2026-10-14
-        during = drop_unsettled_session(prices, datetime(2026, 10, 14, 16, 51, tzinfo=timezone.utc))
-        after = drop_unsettled_session(prices, datetime(2026, 10, 14, 23, 17, tzinfo=timezone.utc))
+        during = drop_unsettled_session(prices, datetime(2026, 10, 14, 16, 51, tzinfo=UTC))
+        after = drop_unsettled_session(prices, datetime(2026, 10, 14, 23, 17, tzinfo=UTC))
         self.assertEqual(during.index[-1], pd.Timestamp("2026-10-13"))
         self.assertEqual(after.index[-1], pd.Timestamp("2026-10-14"))
 

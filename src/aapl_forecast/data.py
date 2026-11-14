@@ -1,16 +1,15 @@
 """Price download, validation and fingerprinting."""
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import hashlib
 import io
 import json
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
 
 import numpy as np
 import pandas as pd
-
 
 STOOQ_URL = "https://stooq.com/q/d/l/?s={symbol}.us&i=d"
 YAHOO_URL = (
@@ -63,7 +62,7 @@ def validate_prices(frame: pd.DataFrame) -> pd.DataFrame:
 
 def drop_unsettled_session(prices: pd.DataFrame, now: datetime | None = None) -> pd.DataFrame:
     """Drop bars for sessions that have not closed yet, so a live price is never used as a close."""
-    now = pd.Timestamp(now or datetime.now(timezone.utc)).tz_convert(MARKET_TZ)
+    now = pd.Timestamp(now or datetime.now(UTC)).tz_convert(MARKET_TZ)
     last_settled = now.normalize() if now.hour >= SETTLED_AFTER_HOUR else now.normalize() - pd.Timedelta(days=1)
     return prices.loc[prices.index <= last_settled.tz_localize(None)]
 

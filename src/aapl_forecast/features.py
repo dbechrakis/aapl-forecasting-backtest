@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 
-
 EWMA_LAMBDA = 0.94  # RiskMetrics daily decay
 
 
