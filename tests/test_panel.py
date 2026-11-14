@@ -76,3 +76,40 @@ class SecondTickerLookAheadTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReadmeMatchesResultsTests(unittest.TestCase):
+    def test_the_readme_block_is_generated_from_the_committed_summaries(self):
+        root = Path(__file__).resolve().parents[1]
+        point = pd.read_csv(root / "outputs" / "panel" / "point_summary.csv")
+        intervals = pd.read_csv(root / "outputs" / "panel" / "interval_summary.csv")
+        readme = (root / "README.md").read_text(encoding="utf-8")
+        block = readme[readme.index(run_panel.START_MARK) + len(run_panel.START_MARK): readme.index(run_panel.END_MARK)].strip("\n")
+        self.assertEqual(block, run_panel.readme_block(point, intervals))
+
+    def test_the_prose_claims_match_the_counts(self):
+        root = Path(__file__).resolve().parents[1]
+        point = pd.read_csv(root / "outputs" / "panel" / "point_summary.csv")
+        self.assertEqual(int(point["better_after_bh"].sum()), 0)
+        gb = point[point["model"].str.startswith("Gradient")].set_index("horizon")
+        self.assertEqual((int(gb.loc[5, "worse_p_below_005"]), int(gb.loc[5, "worse_after_bh"])), (15, 14))
+        self.assertEqual((int(gb.loc[21, "worse_p_below_005"]), int(gb.loc[21, "worse_after_bh"])), (7, 2))
+        self.assertEqual((int(gb.loc[1, "worse_p_below_005"]), int(gb.loc[1, "worse_after_bh"])), (10, 3))
+        self.assertLessEqual(int(point["better_p_below_005"].max()), 1)
+        self.assertTrue((point[point["model"].str.startswith("Ridge")]["median_rmse_vs_rw"] > 1).all())
+        intervals = pd.read_csv(root / "outputs" / "panel" / "interval_summary.csv")
+        one = intervals[intervals["horizon"] == 1].set_index(["level", "method"])["kupiec_pass"]
+        self.assertEqual([int(one[(0.8, "conformal")]), int(one[(0.95, "conformal")]), int(one[(0.8, "garch_conformal")]), int(one[(0.95, "garch_conformal")])], [20, 20, 20, 19])
+        self.assertEqual([int(one[(0.8, "garch")]), int(one[(0.95, "garch")]), int(one[(0.8, "ewma")]), int(one[(0.95, "ewma")]), int(one[(0.8, "static")]), int(one[(0.95, "static")])], [1, 10, 1, 4, 3, 4])
+
+    def test_the_interval_score_statements_match_the_summary(self):
+        root = Path(__file__).resolve().parents[1]
+        intervals = pd.read_csv(root / "outputs" / "panel" / "interval_summary.csv")
+        score = intervals.set_index(["level", "horizon", "method"])["median_score_vs_static"]
+        for horizon in (1, 5):
+            self.assertEqual(score.loc[0.8, horizon].idxmin(), "garch_conformal")
+        self.assertEqual(score.loc[0.8, 21].idxmin(), "garch")
+        for horizon in (1, 5, 21):
+            self.assertEqual(score.loc[0.95, horizon].idxmin(), "garch")
+        self.assertGreater(score.loc[0.8, 21, "conformal"], 1.0)
+        self.assertGreater(score.loc[0.95, 21, "conformal"], 1.0)

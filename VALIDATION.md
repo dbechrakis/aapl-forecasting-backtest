@@ -1,5 +1,7 @@
 # Validation record
 
+**Scope of the latest review.** Rerun in the review of 2026-11-14: the 20-ticker panel (`outputs/panel/`), the unit tests, the evidence check and lint. Recorded history and not rerun in that review: the AAPL backtest in `outputs/backtest/` and the live forecast log, which its workflows repeat. Command: `make check`, then `PYTHONPATH=src python scripts/run_panel.py`.
+
 Review date: 2026-09-05 (UTC).
 
 Forecasting logic tested on controlled sequences; historical metrics remain unverified without the original source CSV.
@@ -64,3 +66,15 @@ The live forecast uses GARCH-conformal at both levels, although plain GARCH has 
 - **Rule.** A method replaces the live one only if, on that refreshed backtest, it has a lower interval score than the live method at both 80% and 95% for all three horizons, and its one-day coverage passes Kupiec's test at both levels. Otherwise the live method stays.
 - **What is never done.** The method is not changed inside the year, after a bad week, or because of the live track record, whose 5- and 21-day intervals overlap and are not independent.
 - **Status.** The rule has not been applied. The live method is unchanged.
+
+### Result of the 20-ticker panel (same day)
+
+`scripts/run_panel.py` ran once as designed. All 20 tickers downloaded and validated, none was dropped (`outputs/panel/manifest.json`, with each snapshot's fingerprint). The first launch oversubscribed the four cores (worker threads multiplied) and made no progress in an hour, so it was stopped and restarted with one thread per worker. That changed speed only. Nothing in the design, the settings or the data was changed, and the second launch is the only result.
+
+- **No model beats the random walk on any ticker after Benjamini-Hochberg.** At most one ticker of 20 is better at p below 0.05 for any model.
+- **Gradient boosting is significantly worse** on 15 of 20 tickers at 5 days (14 after correction), 7 at 21 days (2 after) and 10 at 1 day (3 after).
+- **Ridge's 21-day gain on AAPL does not repeat.** The median RMSE ratio is above 1 at every horizon.
+- **Only the conformal 1-day intervals pass Kupiec on every ticker.** EWMA conformal 20 of 20 at both levels, GARCH conformal 20 of 20 at 80% and 19 of 20 at 95%. GARCH normal 1 and 10, EWMA normal 1 and 4, static 3 and 4.
+- **The interval-score ranking is only partly the AAPL one.** GARCH conformal is lowest at 80% for 1 and 5 days and plain GARCH at 21 days, and plain GARCH is lowest at 95% for every horizon.
+
+The README states these with the tables, generated from `outputs/panel/` and checked by a test. The AAPL findings are supported. The one difference is in the interval-score ranking, reported as it came out. Nothing was retuned.

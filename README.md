@@ -60,6 +60,54 @@ GARCH-conformal has the best interval score at 80% for every horizon. Plain GARC
 
 Full tables: [`accuracy.csv`](outputs/backtest/accuracy.csv) · [`interval_calibration.csv`](outputs/backtest/interval_calibration.csv) · [all forecasts](outputs/backtest/predictions.csv.gz) · [run manifest](outputs/backtest/run_manifest.json).
 
+## Does it hold beyond AAPL?
+
+The same backtest, intervals and tests were run on 20 large US stocks chosen before the run by one rule that does not look at returns: the largest S&P 500 members by market capitalisation at the end of 2015, with the list fixed in [`VALIDATION.md`](VALIDATION.md). All 20 downloaded and validated, and none was dropped. [`scripts/run_panel.py`](scripts/run_panel.py) runs it and the numbers below are generated from [`outputs/panel/`](outputs/panel/) and checked by a test. Prices are not committed. The manifest records each snapshot's fingerprint.
+
+<!-- panel:start -->
+**Point forecasts, ratio of RMSE to the random walk, Diebold-Mariano on squared error, 20 tickers.**
+
+| Horizon | Model | Median RMSE vs random walk | Better, p < 0.05 | Worse, p < 0.05 | Better after BH | Worse after BH |
+|---:|---|---:|---:|---:|---:|---:|
+| 1d | Drift | 1.001 | 0 | 2 | 0 | 0 |
+| 1d | Gradient boosting | 1.011 | 0 | 10 | 0 | 3 |
+| 1d | Moving-average level | 1.435 | 0 | 20 | 0 | 20 |
+| 1d | Ridge | 1.001 | 0 | 0 | 0 | 0 |
+| 1d | SES level | 0.999 | 1 | 0 | 0 | 0 |
+| 5d | Drift | 1.007 | 0 | 4 | 0 | 0 |
+| 5d | Gradient boosting | 1.036 | 0 | 15 | 0 | 14 |
+| 5d | Moving-average level | 1.104 | 0 | 20 | 0 | 20 |
+| 5d | Ridge | 1.013 | 0 | 6 | 0 | 4 |
+| 5d | SES level | 1.000 | 1 | 1 | 0 | 0 |
+| 21d | Drift | 1.029 | 0 | 3 | 0 | 0 |
+| 21d | Gradient boosting | 1.045 | 0 | 7 | 0 | 2 |
+| 21d | Moving-average level | 1.024 | 0 | 19 | 0 | 19 |
+| 21d | Ridge | 1.033 | 0 | 4 | 0 | 0 |
+| 21d | SES level | 1.000 | 0 | 0 | 0 | 0 |
+
+**Intervals, 20 tickers.**
+
+| Level | Method | Tickers passing Kupiec at 1 day | Mean coverage at 1 day | Median interval score vs static at 1, 5 and 21 days |
+|---|---|---:|---:|---|
+| 80% | Static normal | 3 of 20 | 0.829 | 1.000, 1.000, 1.000 |
+| 80% | EWMA normal | 1 of 20 | 0.826 | 0.955, 0.990, 1.026 |
+| 80% | EWMA conformal | 20 of 20 | 0.800 | 0.951, 0.990, 1.046 |
+| 80% | GARCH normal | 1 of 20 | 0.832 | 0.951, 0.977, 0.986 |
+| 80% | GARCH conformal | 20 of 20 | 0.797 | 0.949, 0.976, 0.992 |
+| 95% | Static normal | 4 of 20 | 0.934 | 1.000, 1.000, 1.000 |
+| 95% | EWMA normal | 4 of 20 | 0.938 | 0.898, 0.946, 1.030 |
+| 95% | EWMA conformal | 20 of 20 | 0.948 | 0.898, 0.956, 1.090 |
+| 95% | GARCH normal | 10 of 20 | 0.942 | 0.878, 0.927, 0.956 |
+| 95% | GARCH conformal | 19 of 20 | 0.946 | 0.881, 0.936, 1.004 |
+<!-- panel:end -->
+
+- **No model beats the random walk, on any ticker, once the p-values are corrected.** "Better after BH" is 0 in every row. Before correction at most one ticker of 20 is better for any model, which is what 5% of 20 gives by chance. The finding on AAPL holds on the panel.
+- **Gradient boosting is worse, as on AAPL.** At 5 days it is significantly worse on 15 tickers and 14 survive the correction. At 21 days it is 7 and 2, and at 1 day 10 and 3. The moving-average level is worse on 19 or 20 of 20 at every horizon.
+- **The 21-day gain of Ridge on AAPL does not repeat.** Its median RMSE ratio on the panel is above 1 at every horizon (1.001, 1.013, 1.033).
+- **Only the conformal 1-day intervals hold their coverage, on every ticker.** EWMA conformal passes Kupiec's test on 20 of 20 tickers at 80% and 95%. GARCH conformal passes on 20 of 20 at 80% and 19 of 20 at 95%. GARCH normal passes on 1 and 10, EWMA normal on 1 and 4, and the static interval on 3 and 4.
+- **The interval-score ranking is only partly the same as on AAPL.** GARCH conformal has the lowest median score at 80% for 1 and 5 days, but plain GARCH is lowest at 21 days, and plain GARCH is lowest at 95% for every horizon. EWMA conformal is worse than the static interval at 21 days (1.046 at 80%, 1.090 at 95%), as on AAPL.
+- **Limits.** Twenty large stocks share market moves, so their tests are not independent. They are survivors. The ranking that defined the list was recalled from memory and not looked up. The panel's AAPL row differs from the table above only by the newer snapshot.
+
 ## Design
 
 ```mermaid

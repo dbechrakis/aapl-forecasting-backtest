@@ -90,6 +90,25 @@ def interval_summary(calibration: pd.DataFrame, alpha: float = ALPHA) -> pd.Data
     return pd.DataFrame(rows)
 
 
+MODEL_NAMES = {"Drift (252d mean)": "Drift", "Gradient boosting (features)": "Gradient boosting", "Moving-average level": "Moving-average level",
+               "Ridge (features)": "Ridge", "SES level": "SES level"}
+METHOD_NAMES = {"static": "Static normal", "ewma": "EWMA normal", "conformal": "EWMA conformal", "garch": "GARCH normal", "garch_conformal": "GARCH conformal"}
+START_MARK, END_MARK = "<!-- panel:start -->", "<!-- panel:end -->"
+
+
+def readme_block(point: pd.DataFrame, intervals: pd.DataFrame) -> str:
+    rows = ["| Horizon | Model | Median RMSE vs random walk | Better, p < 0.05 | Worse, p < 0.05 | Better after BH | Worse after BH |", "|---:|---|---:|---:|---:|---:|---:|"]
+    for r in point.sort_values(["horizon", "model"]).itertuples():
+        rows.append(f"| {r.horizon}d | {MODEL_NAMES[r.model]} | {r.median_rmse_vs_rw:.3f} | {r.better_p_below_005} | {r.worse_p_below_005} | {r.better_after_bh} | {r.worse_after_bh} |")
+    cover = ["| Level | Method | Tickers passing Kupiec at 1 day | Mean coverage at 1 day | Median interval score vs static at 1, 5 and 21 days |", "|---|---|---:|---:|---|"]
+    for level in (0.8, 0.95):
+        for method in METHOD_NAMES:
+            g = intervals[(intervals["level"] == level) & (intervals["method"] == method)].set_index("horizon")
+            cover.append(f"| {int(level * 100)}% | {METHOD_NAMES[method]} | {int(g.loc[1, 'kupiec_pass'])} of {int(g.loc[1, 'tickers'])} | {g.loc[1, 'mean_coverage']:.3f} "
+                         f"| {g.loc[1, 'median_score_vs_static']:.3f}, {g.loc[5, 'median_score_vs_static']:.3f}, {g.loc[21, 'median_score_vs_static']:.3f} |")
+    return "\n".join(["**Point forecasts, ratio of RMSE to the random walk, Diebold-Mariano on squared error, 20 tickers.**", "", *rows, "", "**Intervals, 20 tickers.**", "", *cover])
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     CACHE.mkdir(parents=True, exist_ok=True)
