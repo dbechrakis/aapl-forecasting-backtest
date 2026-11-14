@@ -55,3 +55,12 @@ Written before any ticker other than AAPL was downloaded or scored. The README s
 
 - Ruff now selects E, F, I, UP, B and SIM in `pyproject.toml`, with line length (E501), zip without strict (B905) and a call in a default argument (B008) ignored. The Makefile and the evidence workflow use that configuration. Before this the check selected syntax errors and unused names only.
 - 37 findings were fixed automatically, import order and `datetime.UTC`. No behaviour changed. The 34 tests and the evidence check pass. The backtest was not rerun.
+
+## A rule for which interval method goes live — fixed 2026-11-14, applied to nothing yet
+
+The live forecast uses GARCH-conformal at both levels, although plain GARCH has a slightly better interval score at 95% in the backtest. This fixes how that choice is made so it is not made after seeing a result.
+
+- **When.** Once a year, on the first trading day of November, on the backtest refreshed through the previous month. Not at any other time.
+- **Rule.** A method replaces the live one only if, on that refreshed backtest, it has a lower interval score than the live method at both 80% and 95% for all three horizons, and its one-day coverage passes Kupiec's test at both levels. Otherwise the live method stays.
+- **What is never done.** The method is not changed inside the year, after a bad week, or because of the live track record, whose 5- and 21-day intervals overlap and are not independent.
+- **Status.** The rule has not been applied. The live method is unchanged.
