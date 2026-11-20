@@ -163,16 +163,16 @@ flowchart LR
 4. Commits the result to [`outputs/live/forecast_log.csv`](outputs/live/) and [`track_record.csv`](outputs/live/).
 
 <!-- live-track-record:start -->
-Live GARCH-conformal forecasts issued since 2026-10-08: 28 origins, 118 intervals scored so far (latest outcome 2026-11-18). Updated automatically after each US close.
+Live GARCH-conformal forecasts issued since 2026-10-08: 29 origins, 124 intervals scored so far (latest outcome 2026-11-19). Updated automatically after each US close.
 
 | Horizon | Level | Scored | Live coverage (95% interval) | Backtest coverage |
 |---:|---:|---:|---|---:|
-| 1d | 80% | 27 | 81.5% (63% to 92%) | 80.3% |
-| 1d | 95% | 27 | 96.3% (82% to 99%) | 94.6% |
-| 5d | 80% | 24 | 91.7% (74% to 98%) | 79.5% |
-| 5d | 95% | 24 | 100.0% (86% to 100%) | 94.7% |
-| 21d | 80% | 8 | 100.0% (68% to 100%) | 78.9% |
-| 21d | 95% | 8 | 100.0% (68% to 100%) | 94.7% |
+| 1d | 80% | 28 | 82.1% (64% to 92%) | 80.3% |
+| 1d | 95% | 28 | 96.4% (82% to 99%) | 94.6% |
+| 5d | 80% | 25 | 92.0% (75% to 98%) | 79.5% |
+| 5d | 95% | 25 | 100.0% (87% to 100%) | 94.7% |
+| 21d | 80% | 9 | 100.0% (70% to 100%) | 78.9% |
+| 21d | 95% | 9 | 100.0% (70% to 100%) | 94.7% |
 
 Overlapping multi-day intervals are not independent, so the 5- and 21-day intervals are optimistic. A live coverage far outside its interval is a reason to look, not proof of a miscalibrated method.
 <!-- live-track-record:end -->
